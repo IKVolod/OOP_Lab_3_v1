@@ -36,37 +36,53 @@ class Program
                             Console.WriteLine($"Добуток чисел у файлi {i}{j}.txt: {multiply}");
                             sum += multiply;
                             counter += 1;
+                            WriteOutOfFile("overflow.txt", i, j);
                         }
                         catch (OverflowException e)
                         {
                             WriteInFile("overflow.txt", i, j);
+                            WriteOutOfFile("no_file.txt", i, j);
+                            WriteOutOfFile("bad_data.txt", i, j);
                             Console.WriteLine($"Файл {i}{j}.txt: вiдбулося переповнення типу Int, при множеннi чисел\n{e.Message}");
                         }
                     }
+                    WriteOutOfFile("no_file.txt", i, j);
+                    WriteOutOfFile("overflow.txt", i, j);
+                    WriteOutOfFile("bad_data.txt", i, j);
                 }
                 catch (FileNotFoundException e)
                 {
                     WriteInFile("no_file.txt", i, j);
+                    WriteOutOfFile("overflow.txt", i, j);
+                    WriteOutOfFile("bad_data.txt", i, j);
                     Console.WriteLine($"Файл {i}{j}.txt вiдсутнiй\n{e.Message}");
                 }
                 catch (ArgumentNullException e)
                 {
                     WriteInFile("bad_data.txt", i, j);
+                    WriteOutOfFile("no_file.txt", i, j);
+                    WriteOutOfFile("overflow.txt", i, j);
                     Console.WriteLine($"Файл {i}{j}.txt не вiдповiдає умовi\n{e.Message}");
                 }
                 catch (EndOfStreamException e)
                 {
                     WriteInFile("bad_data.txt", i, j);
+                    WriteOutOfFile("no_file.txt", i, j);
+                    WriteOutOfFile("overflow.txt", i, j);
                     Console.WriteLine($"Файл {i}{j}.txt не вiдповiдає умовi\n{e.Message}");
                 }
                 catch (FormatException e)
                 {
                     WriteInFile("bad_data.txt", i, j);
+                    WriteOutOfFile("no_file.txt", i, j);
+                    WriteOutOfFile("overflow.txt", i, j);
                     Console.WriteLine($"Данi в файлi {i}{j}.txt не вiдповiдають умовi\n{e.Message}");
                 }
                 catch (OverflowException e)
                 {
                     WriteInFile("bad_data.txt", i, j);
+                    WriteOutOfFile("no_file.txt", i, j);
+                    WriteOutOfFile("overflow.txt", i, j);
                     Console.WriteLine($"Файл {i}{j}.txt: вiдбулося переповнення типу Int\n{e.Message}");
                 }
                 catch (Exception e)
@@ -79,6 +95,30 @@ class Program
 
         Console.WriteLine($"Сума добуткiв: {sum}");
         Console.WriteLine($"Середнє арифметичне добуткiв: {sum / counter}");
+    }
+
+    static void WriteOutOfFile(string fileName, int i, int j)
+    {
+        try
+        {
+            List<string> list = ReadFile(fileName);
+            list.Remove($"{i}{j}.txt");
+            
+            using (StreamWriter writer = new StreamWriter(fileName, false))
+            {
+                try
+                {
+                    WriteElements(list, writer);
+                }
+                catch {}
+            }
+        }
+        catch (FileNotFoundException) {}
+        catch (Exception e)
+        {
+            Console.WriteLine($"Перевiрте файл {fileName}:\n{e.Message}");
+            Environment.Exit(0);
+        }
     }
 
     static List<string> ReadFile(string fileName)
@@ -120,8 +160,6 @@ class Program
             list.Add($"{i}{j}.txt");
             list = list.Distinct().ToList();
             list.Sort(new Comparer());
-            //Console.WriteLine(list.Count);
-            //Print(list);
             
             using (StreamWriter writer = new StreamWriter(fileName, false))
             {
